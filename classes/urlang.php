@@ -52,8 +52,8 @@ class Urlang {
     public static function uri_to_translation($uri, $lang = NULL) {
 
         $hashtag = "";
-        if (strpos($uri, "#")) {
-            $hashtag = substr($uri, strpos($uri, "#"));
+        if ($pos = strpos($uri, "?") | $pos = strpos($uri, "#")) {
+            $hashtag = substr($uri, $pos);
             $uri = str_replace($hashtag, "", $uri);
         }
 
@@ -76,8 +76,8 @@ class Urlang {
     public static function translation_to_uri($translation) {
 
         $hashtag = "";
-        if (strpos($translation, "#")) {
-            $hashtag = substr($translation, strpos($translation, "#"));
+        if ($pos = strpos($translation, "?") | $pos = strpos($translation, "#")) {
+            $hashtag = substr($translation, $pos);
             $translation = str_replace($hashtag, "", $translation);
         }
 
