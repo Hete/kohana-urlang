@@ -1,7 +1,9 @@
 <?php
 defined('SYSPATH') or die('No direct script access.');
 return array(
-    'accueil' => 'home'
+    // These are examples
+    //'home' => 'home',
+    //'about' => 'about',
     
 );
 ?>

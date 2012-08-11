@@ -43,14 +43,25 @@ class Urlang {
         return $translated_value;
     }
 
-    public static function uri_to_translation($uri) {
+    /**
+     * 
+     * @param string $uri An uri to translate.
+     * @param string $lang To override the destination lang.
+     * @return string The uri translated version.
+     */
+    public static function uri_to_translation($uri, $lang = NULL) {
 
+        $hashtag = "";
+        if (strpos($uri, "#")) {
+            $hashtag = substr($uri, strpos($uri, "#"));
+            $uri = str_replace($hashtag, "", $uri);
+        }
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
 
         // temporarily change target language
-        i18n::lang('url-' . $source);
+        i18n::lang('url-' . ($lang ? $lang : $source));
 
         // On traduit chacune des parties de l'url dans la langue de destination
         foreach ($parts as &$part) {
@@ -59,10 +70,16 @@ class Urlang {
 
         i18n::lang($source);
 
-        return implode("/", $parts);
+        return implode("/", $parts) . $hashtag;
     }
 
     public static function translation_to_uri($translation) {
+
+        $hashtag = "";
+        if (strpos($translation, "#")) {
+            $hashtag = substr($translation, strpos($translation, "#"));
+            $translation = str_replace($hashtag, "", $translation);
+        }
 
         Urlang::$_suggested_lang = NULL;
 
@@ -70,15 +87,14 @@ class Urlang {
         foreach ($parts as &$part) {
             $part = Urlang::get_key($part);
         }
-        
-        if(Urlang::$_suggested_lang && Kohana::$config->load('urlang.autotranslate')) {
+
+        if (Urlang::$_suggested_lang && Kohana::$config->load('urlang.autotranslate')) {
             i18n::lang(Urlang::$_suggested_lang);
             Cookie::set('lang', Urlang::$_suggested_lang);
-                
         }
-        
 
-        return implode('/', $parts);
+
+        return implode('/', $parts) . $hashtag;
     }
 
 }
