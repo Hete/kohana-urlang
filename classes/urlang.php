@@ -4,71 +4,80 @@ defined('SYSPATH') or die('No direct script access.');
 
 class Urlang {
 
-    private static $instance;
-    private $_config;
-
-    public static function instance() {
-        return Urlang::$instance ? Urlang::$instance : Urlang::$instance = new Urlang();
-    }
-
-    private function __construct() {
-        
-    }
+    private static $_suggested_lang;
 
     /**
-     * Returns a value based on a key in the associative array. 
-     * @param type $lang
+     * Scans all uri lang, revert associative array and tries to match a key.
      */
-    private function get_value($key, $lang = null) {
+    private static function get_key($translated_value) {
 
-        $translation_array = Kohana::$config->load($lang ? $lang : i18n::lang());
+        $configs = Kohana::$config->load('urlang.langs');
+        /*
+          if (Urlang::$_first_lang_to_scan) {
+          if (array_count_values(Urlang::$_first_lang_to_scan) == 1) {
 
-        return array_key_exists($translation_array, $key) ? $translation_array[$key] : $key;
-    }
+          $configs[array_search(Urlang::$_first_lang_to_scan, $configs)] = $configs[0];
 
-    /**
-     * Scans all lang, revert associative array and tries to match a key.
-     */
-    private function get_key($translated_value) {
-        $configs = Kohana::$config->load();
-        foreach ($configs as &$lang => &$values) {
-            foreach ($values as &$key => &$value) {
-                if ($translated_value === $value) {
-                    return $key;
-                }
+          $configs[0] = Urlang::$_first_lang_to_scan;
+          } else {
+          throw new Kohana_Exception('Une clé de langue est inexistante dans les configurations de Urlang');
+          }
+          array_push($configs, $configs[0]);
+          $configs[0] = Urlang::$_first_lang_to_scan;
+          }
+         * */
+
+
+
+        foreach ($configs as $lang) {
+
+            $table = i18n::load('url-' . $lang);
+
+            if ($key = array_search($translated_value, $table)) {
+                if (!Urlang::$_suggested_lang)
+                    Urlang::$_suggested_lang = $lang;
+
+                return $key;
             }
         }
         return $translated_value;
-        throw new Kohana_Exception("Aucune valeur d'origine trouvée pour la valeur traduite :value", array(":value" => $translated_value));
     }
 
-    public function uri_to_translation($uri) {
+    public static function uri_to_translation($uri) {
+
 
         $parts = explode("/", $uri);
+        $source = i18n::lang();
 
+        // temporarily change target language
+        i18n::lang('url-' . $source);
 
+        // On traduit chacune des parties de l'url dans la langue de destination
         foreach ($parts as &$part) {
             $part = __($part);
         }
+
+        i18n::lang($source);
 
         return implode("/", $parts);
     }
 
-    public function translation_to_uri($translation) {
+    public static function translation_to_uri($translation) {
+
+        Urlang::$_suggested_lang = NULL;
 
         $parts = explode('/', $translation);
-        $source = i18n::$lang;
-
-        // temporarily change target language
-        i18n::$lang = 'url';
-
         foreach ($parts as &$part) {
-            $part = __($part);
+            $part = Urlang::get_key($part);
         }
+        
+        if(Urlang::$_suggested_lang && Kohana::$config->load('urlang.autotranslate')) {
+            i18n::lang(Urlang::$_suggested_lang);
+            Cookie::set('lang', Urlang::$_suggested_lang);
+                
+        }
+        
 
-        // die(print_r($parts));
-        // restore target language
-        i18n::$lang = $source;
         return implode('/', $parts);
     }
 
