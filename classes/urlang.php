@@ -26,7 +26,13 @@ class Urlang {
           $configs[0] = Urlang::$_first_lang_to_scan;
           }
          * */
-
+        
+        // On doit mettre la langue courrante en premier dans le tableau !
+        if ($index = array_search(i18n::lang(), $configs)) {
+            $temp = $configs[0];
+            $configs[0] = $configs[$index];
+            $configs[$index] = $temp;
+        }
 
 
         foreach ($configs as $lang) {
@@ -36,7 +42,6 @@ class Urlang {
             if ($key = array_search($translated_value, $table)) {
                 if (!Urlang::$_suggested_lang)
                     Urlang::$_suggested_lang = $lang;
-
                 return $key;
             }
         }
