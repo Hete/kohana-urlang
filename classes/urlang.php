@@ -5,6 +5,10 @@ defined('SYSPATH') or die('No direct script access.');
 class Urlang {
 
     private static $_suggested_lang;
+    
+    public static function translate_current_page($lang) {        
+        return "urlang/$lang";
+    }
 
     /**
      * Scans all uri lang, revert associative array and tries to match a key.
@@ -26,7 +30,7 @@ class Urlang {
           $configs[0] = Urlang::$_first_lang_to_scan;
           }
          * */
-        
+
         // On doit mettre la langue courrante en premier dans le tableau !
         if ($index = array_search(i18n::lang(), $configs)) {
             $temp = $configs[0];
