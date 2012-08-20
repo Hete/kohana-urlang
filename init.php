@@ -9,4 +9,9 @@ Route::set('urlang', '<controller>/<lang>', array(
     'lang' => $langs
         )
 );
+
+
+I18n::lang(Cookie::get('lang', 'fr'));
+
+
 ?>
