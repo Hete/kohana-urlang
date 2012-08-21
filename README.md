@@ -2,13 +2,13 @@ Urlang is a Kohana module that translates urls passively.
 
 It is very simple to use. All you have to do, once the module is activated, is to create as many url lang files as you need :
 
-i18n/
-    url/
-        en.php
-        fr.php
-        foo.php
-        en/
-            ca.php
+	i18n/
+		url/
+			en.php
+			fr.php
+			foo.php
+			en/
+				ca.php
 
 Each file should contain a structure like this one :
 
