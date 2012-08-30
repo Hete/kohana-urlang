@@ -5,8 +5,8 @@ defined('SYSPATH') or die('No direct script access.');
 class Urlang {
 
     private static $_suggested_lang;
-    
-    public static function translate_current_page($lang) {        
+
+    public static function translate_current_page($lang) {
         return "urlang/$lang";
     }
 
@@ -60,11 +60,7 @@ class Urlang {
      */
     public static function uri_to_translation($uri, $lang = NULL) {
 
-        $hashtag = "";
-        if ($pos = strpos($uri, "?") | $pos = strpos($uri, "#")) {
-            $hashtag = substr($uri, $pos);
-            $uri = str_replace($hashtag, "", $uri);
-        }
+
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
@@ -79,7 +75,7 @@ class Urlang {
 
         i18n::lang($source);
 
-        return implode("/", $parts) . $hashtag;
+        return implode("/", $parts);
     }
 
     public static function translation_to_uri($translation) {
