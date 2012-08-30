@@ -11,7 +11,7 @@ class Controller_Urlang extends Controller {
         Cookie::set('lang', $this->request->param('lang'));
 
 
-        $this->request->redirect(Urlang::uri_to_translation($url));
+        $this->request->redirect(Urlang::uri_to_translation($url), 301);
     }
 
 }
