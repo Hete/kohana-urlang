@@ -4,11 +4,7 @@ defined('SYSPATH') or die('No direct script access.');
 
 class Urlang {
 
-    private static $_suggested_lang;
-
     public static function prepend($uri, $lang = NULL) {
-        
-        
         return ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
     }
 
@@ -18,15 +14,11 @@ class Urlang {
 
         $uri = preg_replace('~^(?:' . implode('|', $langs) . ')(?=/|$)~i', "", $uri);
 
-        if ($uri[0] === "/") {
+        if (strlen($uri) > 0 && $uri[0] === "/") {
             $uri = substr($uri, 1);
         }
 
         return $uri;
-    }
-
-    public static function translate_current_page($lang) {
-        return "urlang/$lang";
     }
 
     /**
@@ -34,21 +26,7 @@ class Urlang {
      */
     private static function get_key($translated_value) {
 
-        $configs = Kohana::$config->load('urlang.langs');
-        /*
-          if (Urlang::$_first_lang_to_scan) {
-          if (array_count_values(Urlang::$_first_lang_to_scan) == 1) {
-
-          $configs[array_search(Urlang::$_first_lang_to_scan, $configs)] = $configs[0];
-
-          $configs[0] = Urlang::$_first_lang_to_scan;
-          } else {
-          throw new Kohana_Exception('Une clé de langue est inexistante dans les configurations de Urlang');
-          }
-          array_push($configs, $configs[0]);
-          $configs[0] = Urlang::$_first_lang_to_scan;
-          }
-         * */
+        $configs = Kohana::$config->load('urlang.langs');        
 
         // On doit mettre la langue courrante en premier dans le tableau !
         if ($index = array_search(i18n::lang(), $configs)) {
@@ -57,17 +35,17 @@ class Urlang {
             $configs[$index] = $temp;
         }
 
-
         foreach ($configs as $lang) {
 
             $table = i18n::load('url-' . $lang);
 
             if ($key = array_search($translated_value, $table)) {
-                if (!Urlang::$_suggested_lang)
-                    Urlang::$_suggested_lang = $lang;
                 return $key;
             }
         }
+
+
+
         return $translated_value;
     }
 
@@ -83,7 +61,7 @@ class Urlang {
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
-        
+
         // temporarily change target language
         i18n::lang('url-' . ($lang ? $lang : $source));
 
@@ -97,6 +75,34 @@ class Urlang {
         return implode("/", $parts);
     }
 
+    public static function suggested_lang($uri, $fallback) {
+
+        $parts = explode("/", $uri);
+
+
+        if (count($parts) > 0 && in_array($parts[0], Kohana::$config->load('urlang.langs'))) {
+
+            return $parts[0];
+        }
+
+
+        $configs = Kohana::$config->load('urlang.langs');
+
+        foreach ($parts as &$part) {
+
+            foreach ($configs as $lang) {
+
+                $table = i18n::load('url-' . $lang);
+
+                if ($key = array_search($part, $table)) {
+                    return $lang;
+                }
+            }
+        }
+
+        return Cookie::get("lang", $fallback);
+    }
+
     public static function translation_to_uri($translation) {
 
         $hashtag = "";
@@ -105,17 +111,12 @@ class Urlang {
             $translation = str_replace($hashtag, "", $translation);
         }
 
-        Urlang::$_suggested_lang = NULL;
-
         $parts = explode('/', $translation);
         foreach ($parts as &$part) {
             $part = Urlang::get_key($part);
         }
 
-        if (Urlang::$_suggested_lang && Kohana::$config->load('urlang.autotranslate')) {
-            i18n::lang(Urlang::$_suggested_lang);
-            Cookie::set('lang', Urlang::$_suggested_lang);
-        }
+
 
 
         return implode('/', $parts) . $hashtag;
