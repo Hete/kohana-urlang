@@ -6,6 +6,25 @@ class Urlang {
 
     private static $_suggested_lang;
 
+    public static function prepend($uri, $lang = NULL) {
+        
+        
+        return ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
+    }
+
+    public static function unprepend($uri) {
+        // Remove the prepended language in url if exists
+        $langs = (array) Kohana::$config->load('urlang.langs');
+
+        $uri = preg_replace('~^(?:' . implode('|', $langs) . ')(?=/|$)~i', "", $uri);
+
+        if ($uri[0] === "/") {
+            $uri = substr($uri, 1);
+        }
+
+        return $uri;
+    }
+
     public static function translate_current_page($lang) {
         return "urlang/$lang";
     }
@@ -64,7 +83,7 @@ class Urlang {
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
-
+        
         // temporarily change target language
         i18n::lang('url-' . ($lang ? $lang : $source));
 

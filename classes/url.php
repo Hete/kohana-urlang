@@ -4,8 +4,6 @@ defined('SYSPATH') or die('No direct script access.');
 
 class URL extends Kohana_URL {
 
-  
-
     /**
      * Traduire les urls depuis la langue contr
      * @param type $uri
@@ -13,12 +11,12 @@ class URL extends Kohana_URL {
      * @param type $index
      * @return type 
      */
-    public static function site($uri = "", $protocol = "", $index = true) {
-        
-        if(Kohana::$config->load('urlang.prepend'))
-            $uri = I18n::lang().'/'.ltrim($uri, '/');
+    public static function site($uri = "", $protocol = "", $index = true, $lang = NULL) {
 
-        return parent::site(Urlang::uri_to_translation($uri), $protocol, $index);
+        if (Kohana::$config->load('urlang.prepend'))
+            $uri = Urlang::prepend($uri, $lang);
+        
+        return parent::site(Urlang::uri_to_translation($uri, $lang), $protocol, $index);
     }
 
 }
