@@ -17,7 +17,7 @@ class URL extends Kohana_URL {
 
         
 
-        return parent::site(Urlang::uri_to_translation($uri, $lang), $protocol, $index);
+        return parent::site(Urlang::instance()->uri_to_translation($uri, $lang), $protocol, $index);
     }
 
 }
