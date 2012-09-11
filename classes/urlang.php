@@ -49,7 +49,7 @@ class Urlang {
             $langs[$index] = $temp;
         }
 
-        foreach ($langs as $lang) {
+        foreach ($langs as &$lang) {
 
             $table = i18n::load('url-' . $lang);
 
@@ -70,8 +70,6 @@ class Urlang {
      * @return string The uri translated version.
      */
     public static function uri_to_translation($uri, $lang = NULL) {
-
-
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
@@ -108,7 +106,7 @@ class Urlang {
 
         foreach ($parts as &$part) {
 
-            foreach ($langs as $lang) {
+            foreach ($langs as &$lang) {
 
                 $table = i18n::load('url-' . $lang);
 
