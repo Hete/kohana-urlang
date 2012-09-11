@@ -2,12 +2,26 @@
 
 defined('SYSPATH') or die('No direct script access.');
 
+/**
+ * 
+ */
 class Urlang {
 
+    /**
+     * Prepends the lang in I18n::lang() or the $lang parameter if specified.
+     * @param string $uri 
+     * @param string $lang is the lang to prepend.
+     * @return string a prepended url with the lang.
+     */
     public static function prepend($uri, $lang = NULL) {
         return ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
     }
 
+    /**
+     * Unprepend a lang on a uri.
+     * @param type $uri
+     * @return type
+     */
     public static function unprepend($uri) {
         // Remove the prepended language in url if exists
         $langs = (array) Kohana::$config->load('urlang.langs');
@@ -26,16 +40,16 @@ class Urlang {
      */
     private static function get_key($translated_value) {
 
-        $configs = Kohana::$config->load('urlang.langs');        
+        $langs = Kohana::$config->load('urlang.langs');        
 
         // On doit mettre la langue courrante en premier dans le tableau !
-        if ($index = array_search(i18n::lang(), $configs)) {
-            $temp = $configs[0];
-            $configs[0] = $configs[$index];
-            $configs[$index] = $temp;
+        if ($index = array_search(i18n::lang(), $langs)) {
+            $temp = $langs[0];
+            $langs[0] = $langs[$index];
+            $langs[$index] = $temp;
         }
 
-        foreach ($configs as $lang) {
+        foreach ($langs as $lang) {
 
             $table = i18n::load('url-' . $lang);
 
@@ -50,7 +64,7 @@ class Urlang {
     }
 
     /**
-     * 
+     * Turns uri into translation.
      * @param string $uri An uri to translate.
      * @param string $lang To override the destination lang.
      * @return string The uri translated version.
@@ -75,22 +89,26 @@ class Urlang {
         return implode("/", $parts);
     }
 
-    public static function suggested_lang($uri, $fallback) {
+    /**
+     * Retuns the suggested lang based on data in uri, cookies and browser language.
+     * @param string $uri     
+     * @return string
+     */
+    public static function suggested_lang($uri, $fallback = NULL) {
 
+        
+        $langs = Kohana::$config->load('urlang.langs');
+        
         $parts = explode("/", $uri);
 
 
-        if (count($parts) > 0 && in_array($parts[0], Kohana::$config->load('urlang.langs'))) {
-
+        if (count($parts) > 0 && in_array($parts[0], $langs)) {
             return $parts[0];
         }
 
-
-        $configs = Kohana::$config->load('urlang.langs');
-
         foreach ($parts as &$part) {
 
-            foreach ($configs as $lang) {
+            foreach ($langs as $lang) {
 
                 $table = i18n::load('url-' . $lang);
 
@@ -99,10 +117,25 @@ class Urlang {
                 }
             }
         }
-
+        
+        // Default fallback is the index 0 of langs array.
+        // This array cannot be empty.
+        if($fallback === NULL)
+            $fallback = $langs[0];
+        
+        // If request is available, we can grab the fallback from the browser language.
+        if(Request::$current !== NULL) {
+            $fallback = Request::$current->headers()->preferred_language(Kohana::$config->load("urlang.langs"));
+        }
+        
         return Cookie::get("lang", $fallback);
     }
 
+    /**
+     * 
+     * @param type $translation
+     * @return type
+     */
     public static function translation_to_uri($translation) {
 
         $hashtag = "";
@@ -115,9 +148,6 @@ class Urlang {
         foreach ($parts as &$part) {
             $part = Urlang::get_key($part);
         }
-
-
-
 
         return implode('/', $parts) . $hashtag;
     }

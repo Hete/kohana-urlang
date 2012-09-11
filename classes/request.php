@@ -1,5 +1,8 @@
 <?php
 
+defined('SYSPATH') or die('No direct script access.');
+
+
 class Request extends Kohana_Request {
 
     public static function process_uri($uri, $routes = NULL) {
