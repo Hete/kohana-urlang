@@ -5,16 +5,19 @@ defined('SYSPATH') or die('No direct script access.');
 /**
  * 
  */
-class Urlang {    
-    
+class Urlang {
+
     private static $_instance;
+    
+    /**
+     * Cached supported langs array.
+     * @var array 
+     */
     private $_langs;
-    
+
     private function __construct() {
-        $this->_langs = Kohana::$config->load('urlang.langs');
-        
+        $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
-    
 
     public static function instance() {
         return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang();
@@ -72,8 +75,6 @@ class Urlang {
         return implode("/", $parts);
     }
 
-   
-
     /**
      * 
      * @param type $translation
@@ -87,15 +88,14 @@ class Urlang {
             $translation = str_replace($hashtag, "", $translation);
         }
 
+
+
         $parts = explode('/', $translation);
 
         //$langs = Kohana::$config->load('urlang.langs');
 
 
         foreach ($parts as &$part) {
-
-
-
 
             // On doit mettre la langue courrante en premier dans le tableau !
             if ($index = array_search(i18n::lang(), $this->_langs)) {
@@ -108,7 +108,7 @@ class Urlang {
 
                 $table = i18n::load('url-' . $lang);
 
-                if ($key = array_search($lang, $table)) {
+                if ($key = array_search($part, $table)) {
                     $part = $key;
                 }
             }
@@ -116,8 +116,8 @@ class Urlang {
 
         return implode('/', $parts) . $hashtag;
     }
-    
-     /**
+
+    /**
      * Retuns the suggested lang based on data in uri, cookies and browser language.
      * @param string $uri     
      * @return string
@@ -151,7 +151,7 @@ class Urlang {
 
         // If request is available, we can grab the fallback from the browser language.
         if (Request::$current !== NULL) {
-            $fallback = Request::$current->headers()->preferred_language(Kohana::$config->load("urlang.langs"));
+            $fallback = Request::$current->headers()->preferred_language($this->_langs);
         }
 
         return Cookie::get("lang", $fallback);
