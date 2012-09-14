@@ -7,18 +7,25 @@ defined('SYSPATH') or die('No direct script access.');
  */
 class Urlang {
 
+    /**
+     *
+     * @var Urlang 
+     */
     private static $_instance;
     
     /**
      * Cached supported langs array.
-     * @var array 
      */
-    private $_langs;
+    private $_langs;       
 
     private function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
 
+    /**
+     * 
+     * @return Urlang
+     */
     public static function instance() {
         return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang();
     }
@@ -35,8 +42,8 @@ class Urlang {
 
     /**
      * Unprepend a lang on a uri.
-     * @param type $uri
-     * @return type
+     * @param string $uri
+     * @return string
      */
     public function unprepend($uri) {
         // Remove the prepended language in url if exists
@@ -77,8 +84,8 @@ class Urlang {
 
     /**
      * 
-     * @param type $translation
-     * @return type
+     * @param string $translation
+     * @return string
      */
     public function translation_to_uri($translation) {
 
@@ -88,12 +95,7 @@ class Urlang {
             $translation = str_replace($hashtag, "", $translation);
         }
 
-
-
         $parts = explode('/', $translation);
-
-        //$langs = Kohana::$config->load('urlang.langs');
-
 
         foreach ($parts as &$part) {
 
@@ -124,18 +126,19 @@ class Urlang {
      */
     public function suggested_lang($uri, $fallback = NULL) {
 
-
         $parts = explode("/", $uri);
 
-
+        // Matches the prepended language.
         if (count($parts) > 0 && in_array($parts[0], $this->_langs)) {
             return $parts[0];
         }
 
-        foreach ($parts as &$part) {
+        // Match the first part of the uri that has a translated value by url files.
+        foreach ($parts as &$part) {            
 
             foreach ($this->_langs as &$lang) {
-
+                
+                // Safe to use, translation tables are cached in I18n
                 $table = i18n::load('url-' . $lang);
 
                 if ($key = array_search($part, $table)) {
