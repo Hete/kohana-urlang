@@ -3,8 +3,7 @@
 class HTML extends Kohana_HTML {
 
     public static function anchor($uri, $title = NULL, array $attributes = NULL, $protocol = NULL, $index = TRUE, $lang = NULL) {
-        if (Kohana::$config->load('urlang.prepend'))
-            $uri = Urlang::prepend($uri, $lang);
+        
 
 
         if ($title === NULL) {
