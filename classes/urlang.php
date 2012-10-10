@@ -12,11 +12,11 @@ class Urlang {
      * @var Urlang 
      */
     private static $_instance;
-    
+
     /**
      * Cached supported langs array.
      */
-    private $_langs;       
+    private $_langs;
 
     private function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
@@ -46,8 +46,6 @@ class Urlang {
      * @return string
      */
     public function unprepend($uri) {
-        // Remove the prepended language in url if exists
-        //$langs = (array) Kohana::$config->load('urlang.langs');
 
         $uri = preg_replace('~^(?:' . implode('|', $this->_langs) . ')(?=/|$)~i', "", $uri);
 
@@ -59,12 +57,38 @@ class Urlang {
     }
 
     /**
+     * Alias for uri_to_translation.
+     * @param type $uri
+     * @param type $lang
+     * @return type
+     */
+    public function translate($uri, $lang = NULL) {
+        return $this->uri_to_translation($uri, $lang);
+    }
+
+    /**
+     * Alias for translation_to_uri.
+     * @param type $uri
+     * @param type $lang
+     * @return type
+     */
+    public function untranslate($uri) {
+        return $this->translation_to_uri($uri);
+    }
+
+    /**
      * Turns uri into translation.
      * @param string $uri An uri to translate.
      * @param string $lang To override the destination lang.
      * @return string The uri translated version.
      */
     public function uri_to_translation($uri, $lang = NULL) {
+
+        // By safety, we unprepend
+        $uri = $this->unprepend($uri);
+
+        // By safety we untranslate
+        $uri = $this->translation_to_uri($uri);
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
@@ -134,10 +158,10 @@ class Urlang {
         }
 
         // Match the first part of the uri that has a translated value by url files.
-        foreach ($parts as &$part) {            
+        foreach ($parts as &$part) {
 
             foreach ($this->_langs as &$lang) {
-                
+
                 // Safe to use, translation tables are cached in I18n
                 $table = i18n::load('url-' . $lang);
 
