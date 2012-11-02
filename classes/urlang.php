@@ -31,6 +31,16 @@ class Urlang {
     }
 
     /**
+     * Appends the lang in I18n::lang() or the $lang parameter if specified.
+     * @param string $uri 
+     * @param string $lang is the lang to prepend.
+     * @return string a prepended url with the lang.
+     */
+    public function append($uri, $lang = NULL) {
+        return rtrim($uri, '/') . '/' . ($lang !== NULL ? $lang : I18n::lang());
+    }
+
+    /**
      * Prepends the lang in I18n::lang() or the $lang parameter if specified.
      * @param string $uri 
      * @param string $lang is the lang to prepend.
@@ -63,7 +73,7 @@ class Urlang {
      * @return type
      */
     public function translate($uri, $lang = NULL) {
-        return $this->uri_to_translation($uri, $lang);
+        return $this->prepend($this->uri_to_translation($uri, $lang), $lang);
     }
 
     /**
@@ -73,7 +83,7 @@ class Urlang {
      * @return type
      */
     public function untranslate($uri) {
-        return $this->translation_to_uri($uri);
+        return $this->translation_to_uri($this->unprepend($uri));
     }
 
     /**
@@ -84,11 +94,7 @@ class Urlang {
      */
     public function uri_to_translation($uri, $lang = NULL) {
 
-        // By safety, we unprepend
-        $uri = $this->unprepend($uri);
 
-        // By safety we untranslate
-        $uri = $this->translation_to_uri($uri);
 
         $parts = explode("/", $uri);
         $source = i18n::lang();

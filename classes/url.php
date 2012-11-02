@@ -12,10 +12,7 @@ class URL extends Kohana_URL {
      * @return type 
      */
     public static function site($uri = "", $protocol = "", $index = true, $lang = NULL) {
-        if (Kohana::$config->load('urlang.prepend'))
-            $uri = Urlang::instance()->prepend($uri, $lang);
-
-        return parent::site(Urlang::instance()->uri_to_translation($uri, $lang), $protocol, $index);
+        return parent::site(Urlang::instance()->translate($uri, $lang), $protocol, $index);
     }
 
 }

@@ -2,12 +2,9 @@
 
 defined('SYSPATH') or die('No direct script access.');
 
-
 class HTML extends Kohana_HTML {
 
     public static function anchor($uri, $title = NULL, array $attributes = NULL, $protocol = NULL, $index = TRUE, $lang = NULL) {
-       
-
 
         if ($title === NULL) {
             // Use the URI as the title
@@ -16,7 +13,7 @@ class HTML extends Kohana_HTML {
 
         if ($uri === '') {
             // Only use the base URL
-            $uri = URL::base($protocol, $index);
+            $uri = Urlang::instance()->append(URL::base($protocol, $index), $lang);
         } else {
             if (strpos($uri, '://') !== FALSE) {
                 if (HTML::$windowed_urls === TRUE AND empty($attributes['target'])) {
