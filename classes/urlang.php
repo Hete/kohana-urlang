@@ -73,6 +73,8 @@ class Urlang {
      * @return type
      */
     public function translate($uri, $lang = NULL) {
+        // Untranslate for safety
+        $uri = $this->untranslate($uri);
         return $this->prepend($this->uri_to_translation($uri, $lang), $lang);
     }
 
