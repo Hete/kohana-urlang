@@ -129,9 +129,24 @@ class Urlang {
         $parts = explode("/", $uri);
 
         // Matches the prepended language.
-        if (count($parts) > 0 && in_array($parts[0], $this->_langs)) {
+        /*if (count($parts) > 0 && in_array($parts[0], $this->_langs)) {
             return $parts[0];
-        }
+        }*/
+		if (count ($parts) > 0 AND count (explode('-', $parts[0])) > 1)
+		{
+			$langue = explode('-', $parts[0]);
+
+			while (count (explode('-', $parts[0])) > 0)
+			{
+				if (in_array($parts[0], $this->_langs))
+				{
+					return $parts[0];
+				}
+				$array_langue = explode('-', $parts[0]);
+				array_pop($array_langue);
+				$parts[0] = implode('-', $array_langue);
+			}
+		}
 
         // Match the first part of the uri that has a translated value by url files.
         foreach ($parts as &$part) {            
