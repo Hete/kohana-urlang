@@ -49,7 +49,7 @@ class Urlang {
         // Remove the prepended language in url if exists
         //$langs = (array) Kohana::$config->load('urlang.langs');
 
-        $uri = preg_replace('~^(?:' . implode('(-[a-z]{2})?|', $this->_langs) . '(-[a-z]{2})?)(?=/|$)~i', "", $uri);
+        $uri = preg_replace('~^(?:' . implode('(-[a-z]{2})?|', $this->_langs) . '(-[a-z]{2})?)(?=/|$)~i','', $uri);
 
         if (strlen($uri) > 0 && $uri[0] === "/") {
             $uri = substr($uri, 1);
@@ -132,21 +132,20 @@ class Urlang {
         /*if (count($parts) > 0 && in_array($parts[0], $this->_langs)) {
             return $parts[0];
         }*/
-		if (count ($parts) > 0 AND count (explode('-', $parts[0])) > 1)
+		if (count ($parts) > 0 AND count (explode('-', $parts[0])) > 0)
 		{
 			$langue = explode('-', $parts[0]);
 
-			while (count (explode('-', $parts[0])) > 1)
+			while (count ($langue) > 0)
 			{
-				if (in_array($parts[0], $this->_langs))
+				if (in_array($langue[count($langue) - 1], $this->_langs))
 				{
-					return $parts[0];
+					return $langue[count($langue) - 1];
 				}
 
 				//Pops the last element from the array to compare the language
-				$array_langue = explode('-', $parts[0]);
-				array_pop($array_langue);
-				$parts[0] = implode('-', $array_langue);
+				array_pop($langue);
+				$parts[0] = implode('-', $langue);
 			}
 		}
 
