@@ -3,7 +3,10 @@
 defined('SYSPATH') or die('No direct script access.');
 
 /**
- * 
+ *
+ * @package Urlang
+ * @author Guillaume Poirier-Morency <gui>
+ * @copyright (c) 2012, Hète.ca Inc.
  */
 class Urlang {
 
@@ -18,16 +21,20 @@ class Urlang {
      */
     private $_langs;
 
+    /**
+     * 
+     * @param type $tables
+     */
     private function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
 
     /**
-     * 
+     * Singleton
      * @return Urlang
      */
-    public static function instance() {
-        return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang();
+    public static function instance($tables = NULL) {
+        return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang($tables);
     }
 
     /**
@@ -73,9 +80,19 @@ class Urlang {
      * @return type
      */
     public function translate($uri, $lang = NULL) {
+
+        if (!$this->translateable($uri)) {
+            return $uri;
+        }
+
         // Untranslate for safety
         $uri = $this->untranslate($uri);
-        return $this->prepend($this->uri_to_translation($uri, $lang), $lang);
+
+        // Translate
+        $translated = $this->uri_to_translation($uri, $lang);
+
+        // Return prepended version
+        return $this->prepend($translated, $lang);
     }
 
     /**
@@ -85,7 +102,31 @@ class Urlang {
      * @return type
      */
     public function untranslate($uri) {
-        return $this->translation_to_uri($this->unprepend($uri));
+
+        if (!$this->translateable($uri)) {
+            return $uri;
+        }
+
+        // Unprepend
+        $uri = $this->unprepend($uri);
+
+        return $this->translation_to_uri($uri);
+    }
+
+    /**
+     * Tells wether or not an uri is translateable
+     * @param type $uri
+     */
+    public function translateable($uri) {
+        // Do not translate uri containing ://
+        if (strpos("://", $uri) !== FALSE) {
+            return FALSE;
+        }
+
+
+        // In all other cases, we assume it is
+
+        return TRUE;
     }
 
     /**
@@ -95,8 +136,6 @@ class Urlang {
      * @return string The uri translated version.
      */
     public function uri_to_translation($uri, $lang = NULL) {
-
-
 
         $parts = explode("/", $uri);
         $source = i18n::lang();
@@ -140,7 +179,7 @@ class Urlang {
 
             foreach ($this->_langs as &$lang) {
 
-                $table = i18n::load('url-' . $lang);
+                $table = I18n::load('url-' . $lang);
 
                 if ($key = array_search($part, $table)) {
                     $part = $key;
