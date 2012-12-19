@@ -3,9 +3,9 @@
 defined('SYSPATH') or die('No direct script access.');
 
 /**
- *
+ * Urlang is an url translator. All utility functions are found in here.
  * @package Urlang
- * @author Guillaume Poirier-Morency <gui>
+ * @author Guillaume Poirier-Morency <guillaumepoiriermorency@gmail.com>
  * @copyright (c) 2012, Hète.ca Inc.
  */
 class Urlang {
@@ -22,19 +22,40 @@ class Urlang {
     private $_langs;
 
     /**
-     * 
-     * @param type $tables
+     *     
      */
     private function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
 
     /**
-     * Singleton
+     * 
      * @return Urlang
      */
     public static function instance($tables = NULL) {
         return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang($tables);
+    }
+
+    /**
+     * 
+     * @param type $lang
+     * @return \Urlang for builder syntax.
+     */
+    public function langs($lang = NULL) {
+        if ($lang === NULL) {
+            return $this->_langs;
+        }
+
+        if (Arr::is_array($lang)) {
+            $this->_langs = $lang;
+        } else {
+            $this->_langs[] = $lang;
+        }
+
+        // Remove duplicated entries
+        $this->_langs = array_unique($this->_langs);
+
+        return $this;
     }
 
     /**
@@ -103,10 +124,6 @@ class Urlang {
      */
     public function untranslate($uri) {
 
-        if (!$this->translateable($uri)) {
-            return $uri;
-        }
-
         // Unprepend
         $uri = $this->unprepend($uri);
 
@@ -114,17 +131,20 @@ class Urlang {
     }
 
     /**
-     * Tells wether or not an uri is translateable
-     * @param type $uri
+     * Determine if an uri is translateable.
+     * @param string $uri
+     * @return boolean 
      */
     public function translateable($uri) {
-        // Do not translate uri containing ://
-        if (strpos("://", $uri) !== FALSE) {
+
+        // Do not translate uri containing ://, it's generaly external request
+
+        if (strpos($uri, "://") !== FALSE) {
             return FALSE;
         }
 
 
-        // In all other cases, we assume it is
+        // In all other cases, we assume it is translateable
 
         return TRUE;
     }
@@ -154,7 +174,7 @@ class Urlang {
     }
 
     /**
-     * 
+     * Take a translated uri and get its original value.
      * @param string $translation
      * @return string
      */
@@ -177,7 +197,7 @@ class Urlang {
                 $this->_langs[$index] = $temp;
             }
 
-            foreach ($this->_langs as &$lang) {
+            foreach ($this->_langs as $lang) {
 
                 $table = I18n::load('url-' . $lang);
 
@@ -197,6 +217,11 @@ class Urlang {
      */
     public function suggested_lang($uri, $fallback = NULL) {
 
+        // Default fallback is the index 0 of langs array.
+        // This array cannot be empty.
+        if ($fallback === NULL)
+            $fallback = $this->_langs[0];
+
         $parts = explode("/", $uri);
 
         // Matches the prepended language.
@@ -207,7 +232,7 @@ class Urlang {
         // Match the first part of the uri that has a translated value by url files.
         foreach ($parts as &$part) {
 
-            foreach ($this->_langs as &$lang) {
+            foreach ($this->_langs as $lang) {
 
                 // Safe to use, translation tables are cached in I18n
                 $table = i18n::load('url-' . $lang);
@@ -217,11 +242,6 @@ class Urlang {
                 }
             }
         }
-
-        // Default fallback is the index 0 of langs array.
-        // This array cannot be empty.
-        if ($fallback === NULL)
-            $fallback = $this->_langs[0];
 
         // If request is available, we can grab the fallback from the browser language.
         if (Request::$current !== NULL) {
