@@ -19,15 +19,18 @@ class Urlang_Test extends Unittest_TestCase {
 
         // Cookie::delete("lang");
     }
-    
+
     public function test_extract_query() {
-        
+
         list($uri, $query) = Urlang::instance()->extract_query("tata?2");
-        
+
         $this->assertEquals($uri, "tata");
         $this->assertEquals($query, "?2");
-        
-        
+
+        list($uri, $query) = Urlang::instance()->extract_query("tata#ha?2");
+
+        $this->assertEquals($uri, "tata");
+        $this->assertEquals($query, "#ha?2");
     }
 
     public function test_suggested_lang() {
@@ -56,6 +59,17 @@ class Urlang_Test extends Unittest_TestCase {
     }
 
     /**
+     * Test the prepend feature     
+     */
+    public function test_unprepend() {
+
+        $this->assertEquals("blabla", Urlang::instance()->unprepend("tests-fr/blabla"));
+
+        // uri starting with a slash shouldn't be unprepended
+        $this->assertEquals("/blabla", Urlang::instance()->unprepend("/tests-fr/blabla"));
+    }
+
+    /**
      * Test common translation
      * @depends test_extract_query
      * @depends test_translateable
@@ -73,20 +87,10 @@ class Urlang_Test extends Unittest_TestCase {
         $this->assertEquals(Urlang::instance()->translate("home/category?b=2", "tests-fr"), "tests-fr/accueil/categorie?b=2");
 
         // With hashtag
-        $this->assertEquals(Urlang::instance()->translate("home/category#b", "tests-fr"), "tests-fr/accueil/categorie#b?b=2");
+        $this->assertEquals(Urlang::instance()->translate("home/category#b", "tests-fr"), "tests-fr/accueil/categorie#b");
 
         // With parameters and hashtag
         $this->assertEquals(Urlang::instance()->translate("home/category#b?b=2", "tests-fr"), "tests-fr/accueil/categorie#b?b=2");
-    }
-
-    /**
-     * Test the prepend feature     
-     */
-    public function test_unprepend() {
-
-        $s = "tests-fr/blabla";
-
-        $this->assertEquals("blabla", Urlang::instance()->unprepend($s));
     }
 
     /**

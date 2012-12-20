@@ -37,8 +37,8 @@ class Urlang {
     }
 
     /**
-     * 
-     * @param type $lang
+     * Alter supported langs.
+     * @param variant $lang
      * @return \Urlang for builder syntax.
      */
     public function langs($lang = NULL) {
@@ -63,6 +63,7 @@ class Urlang {
      * @param string $uri 
      * @param string $lang is the lang to prepend.
      * @return string a prepended url with the lang.
+     * @deprecated useless
      */
     public function append($uri, $lang = NULL) {
         return rtrim($uri, '/') . '/' . ($lang !== NULL ? $lang : I18n::lang());
@@ -81,17 +82,11 @@ class Urlang {
     /**
      * Unprepend a lang on a uri.
      * @param string $uri
+     * @todo fix the regex so fr/test => test and /fr/test => /test
      * @return string
      */
     public function unprepend($uri) {
-
-        $uri = preg_replace('~^(?:' . implode('|', $this->_langs) . ')(?=/|$)~i', "", $uri);
-
-        if (strlen($uri) > 0 && $uri[0] === "/") {
-            $uri = substr($uri, 1);
-        }
-
-        return $uri;
+        return preg_replace("/(" . implode('|', $this->_langs) . ")\//", "", $uri);
     }
 
     /**
@@ -118,11 +113,14 @@ class Urlang {
 
     /**
      * Alias for translation_to_uri.
-     * @param type $uri
-     * @param type $lang
-     * @return type
+     * @param string $uri uri to untranslate 
+     * @return string untranslated uri
      */
     public function untranslate($uri) {
+
+        if (!$this->translateable($uri)) {
+            return $uri;
+        }
 
         // Unprepend
         $uri = $this->unprepend($uri);
@@ -182,7 +180,7 @@ class Urlang {
      */
     public function translation_to_uri($translation) {
 
-        list($uri, $query) = $this->extract_query($translation);
+        list($translation, $query) = $this->extract_query($translation);
 
         $parts = explode('/', $translation);
 
@@ -209,50 +207,33 @@ class Urlang {
     }
 
     /**
-     * Extracts end of string query such as hashtags or question mark
-     * @param string $uri
-     * @return array
+     * Extracts end of string query such as hashtags or question mark.
+     * @param string $uri uri to be extracted.
+     * @return array first element is the cleaned uri, second is the query.
      */
     public function extract_query($uri) {
 
-        /**
-        $parsed = parse_url($uri);
+        // Find pos of first ?
 
-        $hashtag = $parsed["fragment"];
-
-        $query = $parsed["query"];
+        $pos_query = strpos($uri, "?") ? strpos($uri, "?") : strlen($uri);
 
 
-        preg_replace();
-*/
-        
+        $pos_hashtag = strpos($uri, "#") ? strpos($uri, "#") : strlen($uri);
 
-                return array($uri, "");
+        $pos = $pos_query < $pos_hashtag ? $pos_query : $pos_hashtag;
 
+        $cleaned_uri = substr($uri, 0, $pos);
 
+        $query = substr($uri, $pos);
 
-
-        $stripped_uri = preg_replace("(\#.*|\?.*)$", "", $uri);
-
-        $query = preg_replace("\#.*|\?.*$", "", $uri);
-
-
-        $parts = preg_split("", $uri);
-
-        $uri = array_shift($parts);
-
-        $query = "";
-
-        foreach ($parts as $part) {
-            $query . - $part;
-        }
-
+        return array($cleaned_uri, $query);
     }
 
     /**
      * Retuns the suggested lang based on data in uri, cookies and browser language.
-     * @param string $uri     
-     * @return string
+     * @param string $uri is the uri on which a lang will be suggested.
+     * @param string $fallback lang to use if everything has failed.
+     * @return string a suggested and supported lang.
      */
     public function suggested_lang($uri, $fallback = NULL) {
 
@@ -287,6 +268,7 @@ class Urlang {
             $fallback = Request::$current->headers()->preferred_language($this->_langs);
         }
 
+        // Cookie of fallback
         return Cookie::get("lang", $fallback);
     }
 
