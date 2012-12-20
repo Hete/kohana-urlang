@@ -19,6 +19,16 @@ class Urlang_Test extends Unittest_TestCase {
 
         // Cookie::delete("lang");
     }
+    
+    public function test_extract_query() {
+        
+        list($uri, $query) = Urlang::instance()->extract_query("tata?2");
+        
+        $this->assertEquals($uri, "tata");
+        $this->assertEquals($query, "?2");
+        
+        
+    }
 
     public function test_suggested_lang() {
 
@@ -47,6 +57,7 @@ class Urlang_Test extends Unittest_TestCase {
 
     /**
      * Test common translation
+     * @depends test_extract_query
      * @depends test_translateable
      * @depends test_prepend
      */
@@ -57,6 +68,15 @@ class Urlang_Test extends Unittest_TestCase {
         $translated = Urlang::instance()->translate($uri, "tests-fr");
 
         $this->assertEquals($translated, "tests-fr/accueil/categorie");
+
+        // With parameters
+        $this->assertEquals(Urlang::instance()->translate("home/category?b=2", "tests-fr"), "tests-fr/accueil/categorie?b=2");
+
+        // With hashtag
+        $this->assertEquals(Urlang::instance()->translate("home/category#b", "tests-fr"), "tests-fr/accueil/categorie#b?b=2");
+
+        // With parameters and hashtag
+        $this->assertEquals(Urlang::instance()->translate("home/category#b?b=2", "tests-fr"), "tests-fr/accueil/categorie#b?b=2");
     }
 
     /**

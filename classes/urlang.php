@@ -157,6 +157,8 @@ class Urlang {
      */
     public function uri_to_translation($uri, $lang = NULL) {
 
+        list($uri, $query) = $this->extract_query($uri);
+
         $parts = explode("/", $uri);
         $source = i18n::lang();
 
@@ -170,7 +172,7 @@ class Urlang {
 
         i18n::lang($source);
 
-        return implode("/", $parts);
+        return implode("/", $parts) . $query;
     }
 
     /**
@@ -180,11 +182,7 @@ class Urlang {
      */
     public function translation_to_uri($translation) {
 
-        $hashtag = "";
-        if ($pos = strpos($translation, "?") | $pos = strpos($translation, "#")) {
-            $hashtag = substr($translation, $pos);
-            $translation = str_replace($hashtag, "", $translation);
-        }
+        list($uri, $query) = $this->extract_query($translation);
 
         $parts = explode('/', $translation);
 
@@ -207,7 +205,48 @@ class Urlang {
             }
         }
 
-        return implode('/', $parts) . $hashtag;
+        return implode('/', $parts) . $query;
+    }
+
+    /**
+     * Extracts end of string query such as hashtags or question mark
+     * @param string $uri
+     * @return array
+     */
+    public function extract_query($uri) {
+
+        /**
+        $parsed = parse_url($uri);
+
+        $hashtag = $parsed["fragment"];
+
+        $query = $parsed["query"];
+
+
+        preg_replace();
+*/
+        
+
+                return array($uri, "");
+
+
+
+
+        $stripped_uri = preg_replace("(\#.*|\?.*)$", "", $uri);
+
+        $query = preg_replace("\#.*|\?.*$", "", $uri);
+
+
+        $parts = preg_split("", $uri);
+
+        $uri = array_shift($parts);
+
+        $query = "";
+
+        foreach ($parts as $part) {
+            $query . - $part;
+        }
+
     }
 
     /**
