@@ -15,7 +15,7 @@ class Kohana_Urlang {
      *
      * @var Urlang 
      */
-    private static $_instance;
+    protected static $_instance;
 
     /**
      * Cached supported langs array.
@@ -25,7 +25,7 @@ class Kohana_Urlang {
     /**
      *     
      */
-    private function __construct() {
+    protected function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
 
