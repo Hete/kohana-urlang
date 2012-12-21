@@ -62,11 +62,19 @@ class Urlang {
      * Appends the lang in I18n::lang() or the $lang parameter if specified.
      * @param string $uri 
      * @param string $lang is the lang to prepend.
-     * @return string a prepended url with the lang.
-     * @deprecated useless
+     * @return string a prepended url with the lang.     * 
      */
     public function append($uri, $lang = NULL) {
         return rtrim($uri, '/') . '/' . ($lang !== NULL ? $lang : I18n::lang());
+    }
+
+    /**
+     * Unappend an uri.
+     * @param string $uri
+     * @return string
+     */
+    public function unappend($uri) {
+        return preg_replace("/\/*(" . implode('|', $this->_langs) . ")\/*/", "", $uri);
     }
 
     /**
@@ -76,13 +84,12 @@ class Urlang {
      * @return string a prepended url with the lang.
      */
     public function prepend($uri, $lang = NULL) {
-        return ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
+        return ($this->is_absolute($uri) ? "/" : "") . ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
     }
 
     /**
      * Unprepend a lang on a uri.
      * @param string $uri
-     * @todo fix the regex so fr/test => test and /fr/test => /test
      * @return string
      */
     public function unprepend($uri) {
@@ -122,6 +129,7 @@ class Urlang {
             return $uri;
         }
 
+
         // Unprepend
         $uri = $this->unprepend($uri);
 
@@ -140,7 +148,6 @@ class Urlang {
         if (strpos($uri, "://") !== FALSE) {
             return FALSE;
         }
-
 
         // In all other cases, we assume it is translateable
 
@@ -170,7 +177,7 @@ class Urlang {
 
         i18n::lang($source);
 
-        return implode("/", $parts) . $query;
+        return ($this->is_absolute($uri) ? "/" : "") . implode("/", $parts) . $query;
     }
 
     /**
@@ -203,7 +210,7 @@ class Urlang {
             }
         }
 
-        return implode('/', $parts) . $query;
+        return ($this->is_absolute($translation) ? "/" : "") . implode('/', $parts) . $query;
     }
 
     /**
@@ -263,6 +270,8 @@ class Urlang {
             }
         }
 
+
+
         // If request is available, we can grab the fallback from the browser language.
         if (Request::$current !== NULL) {
             $fallback = Request::$current->headers()->preferred_language($this->_langs);
@@ -270,6 +279,18 @@ class Urlang {
 
         // Cookie of fallback
         return Cookie::get("lang", $fallback);
+    }
+
+    /**
+     * Test if an uri is absolute (starting with /)
+     * @param string $uri
+     */
+    public function is_absolute($uri) {
+
+        if (strlen($uri) === 0)
+            return FALSE;
+
+        return $uri[0] === "/";
     }
 
 }
