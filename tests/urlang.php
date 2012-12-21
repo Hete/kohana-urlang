@@ -86,19 +86,19 @@ class Urlang_Test extends Unittest_TestCase {
      * @depends test_is_absolute
      */
     public function test_append() {
-        
+
         $this->assertEquals(Urlang::instance()->append("tata", "fr"), "tata/fr");
-        
+
         // Absolute
         $this->assertEquals(Urlang::instance()->append("/tata", "fr"), "/tata/fr");
     }
 
-     /**
+    /**
      * @depends test_is_absolute
      */
     public function test_unappend() {
-          $this->assertEquals(Urlang::instance()->unappend("tata/tests-fr"), "tata");
-        
+        $this->assertEquals(Urlang::instance()->unappend("tata/tests-fr"), "tata");
+
         // Absolute
         $this->assertEquals(Urlang::instance()->unappend("/tata/tests-fr"), "/tata");
     }
@@ -117,6 +117,9 @@ class Urlang_Test extends Unittest_TestCase {
         $translated = Urlang::instance()->translate($uri, "tests-fr");
 
         $this->assertEquals($translated, "tests-fr/accueil/categorie");
+
+        $this->assertEquals(Urlang::instance()->translate("index.php/home/category", "tests-fr"), "tests-fr/index.php/accueil/categorie");
+
 
         // Preserve absoluteness
         $this->assertEquals(Urlang::instance()->translate("/home/category", "tests-fr"), "/tests-fr/accueil/categorie");
