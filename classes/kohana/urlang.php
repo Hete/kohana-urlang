@@ -75,7 +75,7 @@ class Kohana_Urlang {
      * @return string
      */
     public function unappend($uri) {
-        return preg_replace("/\/*(" . implode('|', $this->_langs) . ")\/*/", "", $uri);
+        return preg_replace("/\/*(" . implode('|', $this->_langs) . ")\/?/", "", $uri);
     }
 
     /**
@@ -94,7 +94,8 @@ class Kohana_Urlang {
      * @return string
      */
     public function unprepend($uri) {
-        return preg_replace("/(" . implode('|', $this->_langs) . ")(\/)*/", "", $uri);
+        
+        return preg_replace("/^(" . implode('|', $this->_langs) . ")(\/)?/", "", $uri, 1);
     }
 
     /**
