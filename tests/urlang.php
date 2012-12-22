@@ -78,6 +78,10 @@ class Urlang_Test extends Unittest_TestCase {
 
         $this->assertEquals("blabla", Urlang::instance()->unprepend("tests-fr/blabla"));
 
+        $this->assertEquals("", Urlang::instance()->unprepend("tests-fr/"));
+        $this->assertEquals("", Urlang::instance()->unprepend("tests-fr"));
+
+
         // uri starting with a slash shouldn't be unprepended
         $this->assertEquals("/blabla", Urlang::instance()->unprepend("/tests-fr/blabla"));
     }
