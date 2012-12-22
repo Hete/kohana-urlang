@@ -12,35 +12,32 @@ defined('SYSPATH') or die('No direct script access.');
 class Kohana_Urlang {
 
     /**
-     *
+     * Singleton
      * @var Urlang 
      */
     protected static $_instance;
 
     /**
-     * Cached supported langs array.
+     * Supported langs.
      */
     private $_langs;
 
-    /**
-     *     
-     */
     protected function __construct() {
         $this->_langs = (array) Kohana::$config->load('urlang.langs');
     }
 
     /**
-     * 
+     * Instance for the singleton.
      * @return Urlang
      */
-    public static function instance($tables = NULL) {
-        return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang($tables);
+    public static function instance() {
+        return Urlang::$_instance ? Urlang::$_instance : Urlang::$_instance = new Urlang();
     }
 
     /**
      * Alter supported langs.
-     * @param variant $lang
-     * @return \Urlang for builder syntax.
+     * @param array|string $lang
+     * @return \Kohana_Urlang for builder syntax.
      */
     public function langs($lang = NULL) {
         if ($lang === NULL) {
@@ -105,18 +102,25 @@ class Kohana_Urlang {
      */
     public function translate($uri, $lang = NULL) {
 
-        if (!$this->translateable($uri)) {
-            return $uri;
+        if (Kohana::$profiling) {
+            $benchmark = Profiler::start("Urlang", __FUNCTION__);
         }
 
-        // Untranslate for safety
-        $uri = $this->untranslate($uri);
+        if (!$this->translateable($uri)) {
+            return $uri;
+        }     
 
         // Translate
         $translated = $this->uri_to_translation($uri, $lang);
 
+        $prepended = $this->prepend($translated, $lang);
+
+        if (isset($benchmark)) {
+            Profiler::stop($benchmark);
+        }
+
         // Return prepended version
-        return $this->prepend($translated, $lang);
+        return $prepended;
     }
 
     /**
@@ -126,15 +130,24 @@ class Kohana_Urlang {
      */
     public function untranslate($uri) {
 
+        if (Kohana::$profiling) {
+            $benchmark = Profiler::start("Urlang", __FUNCTION__);
+        }
+
         if (!$this->translateable($uri)) {
             return $uri;
         }
 
-
         // Unprepend
         $uri = $this->unprepend($uri);
 
-        return $this->translation_to_uri($uri);
+        $untranslated = $this->translation_to_uri($uri);
+
+        if (isset($benchmark)) {
+            Profiler::stop($benchmark);
+        }
+
+        return $untranslated;
     }
 
     /**
@@ -270,8 +283,6 @@ class Kohana_Urlang {
                 }
             }
         }
-
-
 
         // If request is available, we can grab the fallback from the browser language.
         if (Request::$current !== NULL) {
