@@ -28,6 +28,15 @@ class Urlang_Test extends Unittest_TestCase {
         $this->assertTrue(Urlang::instance()->is_absolute("/asdasd/asdasd"));
     }
 
+    public function test_has_trailing_slash() {
+        $this->assertFalse(Urlang::instance()->has_trailing_slash(""));
+        $this->assertFalse(Urlang::instance()->has_trailing_slash("/"));
+        $this->assertFalse(Urlang::instance()->has_trailing_slash("test"));
+        $this->assertFalse(Urlang::instance()->has_trailing_slash("/test"));
+        $this->assertTrue(Urlang::instance()->has_trailing_slash("//"));
+        $this->assertTrue(Urlang::instance()->has_trailing_slash("test/"));
+    }
+
     public function test_extract_query() {
 
         list($uri, $query) = Urlang::instance()->extract_query("tata?2");
@@ -59,12 +68,18 @@ class Urlang_Test extends Unittest_TestCase {
     /**
      * Test the prepend feature     
      * @depends test_is_absolute
+     * @depends test_has_trailing_slash
      */
     public function test_prepend() {
 
-        $s = "blabla";
+        $this->assertEquals("fr/blabla/", Urlang::instance()->prepend("blabla/", "fr"));
 
-        $this->assertEquals("fr/blabla", Urlang::instance()->prepend($s, "fr"));
+        $this->assertEquals("fr/blabla", Urlang::instance()->prepend("blabla", "fr"));
+
+        $this->assertEquals("fr", Urlang::instance()->prepend(""));
+
+        $this->assertEquals("/fr", Urlang::instance()->prepend("/"));
+
 
         // Absolute uri must be preserved
         $this->assertEquals("/fr/blabla", Urlang::instance()->prepend("/blabla", "fr"));
@@ -81,8 +96,16 @@ class Urlang_Test extends Unittest_TestCase {
         $this->assertEquals("", Urlang::instance()->unprepend("tests-fr/"));
         $this->assertEquals("", Urlang::instance()->unprepend("tests-fr"));
 
+        $this->assertEquals("", Urlang::instance()->unprepend(""));
 
-        // uri starting with a slash shouldn't be unprepended
+        $this->assertEquals("/", Urlang::instance()->unprepend("/"));
+
+        // uri starting with a valid prepend, but isin't one
+        $this->assertEquals("tests-french", Urlang::instance()->unprepend("tests-french"));
+        $this->assertEquals("tests-french", Urlang::instance()->unprepend("tests-fr/tests-french"));
+        $this->assertEquals("/tests-french", Urlang::instance()->unprepend("/tests-fr/tests-french"));
+
+        // uri starting with a slash should keep a slash at start
         $this->assertEquals("/blabla", Urlang::instance()->unprepend("/tests-fr/blabla"));
     }
 

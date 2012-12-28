@@ -82,7 +82,21 @@ class Kohana_Urlang {
      * @return string a prepended url with the lang.
      */
     public function prepend($uri, $lang = NULL) {
-        return ($this->is_absolute($uri) ? "/" : "") . ($lang !== NULL ? $lang : I18n::lang()) . '/' . ltrim($uri, '/');
+
+        $lang = $lang !== NULL ? $lang : I18n::lang();
+
+        if (strlen($uri) === 0) {
+            return $lang;
+        }
+
+        // $uri has no effective size, so prepending is complex
+        if ($uri === "/") {
+            return "/" . $lang;
+        }
+
+        echo ltrim($uri, "/");
+
+        return ($this->is_absolute($uri) ? "/" : "") . $lang . "/" . ltrim($uri, "/");
     }
 
     /**
@@ -91,8 +105,20 @@ class Kohana_Urlang {
      * @return string
      */
     public function unprepend($uri) {
-        
-        return preg_replace("/^(" . implode('|', $this->_langs) . ")(\/)?/", "", $uri, 1);
+
+        $parts = explode("/", $uri);
+
+        if ($parts[0] === "")
+            array_shift($parts);
+
+        if (!isset($parts[0]))
+            return $uri;
+
+        if (preg_match("/^(" . implode('|', $this->_langs) . ")$/", $parts[0])) {
+            array_shift($parts);
+        }
+
+        return ($this->is_absolute($uri) ? "/" : "") . implode("/", $parts);
     }
 
     /**
@@ -109,7 +135,7 @@ class Kohana_Urlang {
 
         if (!$this->translateable($uri)) {
             return $uri;
-        }     
+        }
 
         // Translate
         $translated = $this->uri_to_translation($uri, $lang);
@@ -304,6 +330,19 @@ class Kohana_Urlang {
             return FALSE;
 
         return $uri[0] === "/";
+    }
+
+    public function has_trailing_slash($uri) {
+        // May not have any trailing character
+        if (strlen($uri) === 0)
+            return FALSE;
+
+        // Not a trailing slash, but an absolute uri
+        if (strlen($uri) === 1 && $this->is_absolute($uri))
+            return FALSE;
+
+        // Check if last char is a /
+        return $uri[strlen($uri) - 1] === "/";
     }
 
 }
