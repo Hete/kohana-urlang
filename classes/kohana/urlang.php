@@ -94,7 +94,6 @@ class Kohana_Urlang {
             return "/" . $lang;
         }
 
-        echo ltrim($uri, "/");
 
         return ($this->is_absolute($uri) ? "/" : "") . $lang . "/" . ltrim($uri, "/");
     }
