@@ -189,6 +189,10 @@ class Kohana_Urlang {
             return FALSE;
         }
 
+        if (strlen($uri) > 0 && $uri[0] === "#") {
+            return FALSE;
+        }
+
         // In all other cases, we assume it is translateable
 
         return TRUE;
