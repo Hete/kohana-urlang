@@ -192,6 +192,10 @@ class Kohana_Urlang {
         if (strlen($uri) > 0 && $uri[0] === "#") {
             return FALSE;
         }
+        
+        if(preg_match(Kohana::$config->load("urlang.ignore"), $uri)) {
+            return FALSE;
+        }
 
         // In all other cases, we assume it is translateable
 
