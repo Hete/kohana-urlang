@@ -83,6 +83,10 @@ class Kohana_Urlang {
      */
     public function prepend($uri, $lang = NULL) {
 
+        if (Kohana::$config->load("urlang.prepend") === FALSE) {
+            return $uri;
+        }
+
         $lang = $lang !== NULL ? $lang : I18n::lang();
 
         if (strlen($uri) === 0) {
@@ -139,6 +143,7 @@ class Kohana_Urlang {
         // Translate
         $translated = $this->uri_to_translation($uri, $lang);
 
+
         $prepended = $this->prepend($translated, $lang);
 
         if (isset($benchmark)) {
@@ -192,8 +197,8 @@ class Kohana_Urlang {
         if (strlen($uri) > 0 && $uri[0] === "#") {
             return FALSE;
         }
-        
-        if(preg_match(Kohana::$config->load("urlang.ignore"), $uri)) {
+
+        if (preg_match("/" . Kohana::$config->load("urlang.ignore") . "/", $uri)) {
             return FALSE;
         }
 
@@ -242,7 +247,7 @@ class Kohana_Urlang {
         foreach ($parts as &$part) {
 
             // On doit mettre la langue courrante en premier dans le tableau !
-            if ($index = array_search(i18n::lang(), $this->_langs)) {
+            if (($index = array_search(i18n::lang(), $this->_langs))) {
                 $temp = $this->_langs[0];
                 $this->_langs[0] = $this->_langs[$index];
                 $this->_langs[$index] = $temp;
@@ -252,7 +257,7 @@ class Kohana_Urlang {
 
                 $table = I18n::load('url-' . $lang);
 
-                if ($key = array_search($part, $table)) {
+                if (($key = array_search($part, $table))) {
                     $part = $key;
                 }
             }
@@ -312,7 +317,7 @@ class Kohana_Urlang {
                 // Safe to use, translation tables are cached in I18n
                 $table = i18n::load('url-' . $lang);
 
-                if ($key = array_search($part, $table)) {
+                if (($key = array_search($part, $table))) {
                     return $lang;
                 }
             }
