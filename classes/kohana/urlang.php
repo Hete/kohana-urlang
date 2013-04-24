@@ -13,6 +13,7 @@ class Kohana_Urlang {
 
     /**
      * Singleton
+     * 
      * @var Urlang 
      */
     protected static $_instance;
@@ -28,6 +29,7 @@ class Kohana_Urlang {
 
     /**
      * Instance for the singleton.
+     * 
      * @return Urlang
      */
     public static function instance() {
@@ -36,6 +38,7 @@ class Kohana_Urlang {
 
     /**
      * Alter supported langs.
+     * 
      * @param array|string $lang
      * @return \Kohana_Urlang for builder syntax.
      */
@@ -58,6 +61,7 @@ class Kohana_Urlang {
 
     /**
      * Appends the lang in I18n::lang() or the $lang parameter if specified.
+     * 
      * @param string $uri 
      * @param string $lang is the lang to prepend.
      * @return string a prepended url with the lang.     * 
@@ -68,6 +72,7 @@ class Kohana_Urlang {
 
     /**
      * Unappend an uri.
+     * 
      * @param string $uri
      * @return string
      */
@@ -77,11 +82,16 @@ class Kohana_Urlang {
 
     /**
      * Prepends the lang in I18n::lang() or the $lang parameter if specified.
+     * 
      * @param string $uri 
      * @param string $lang is the lang to prepend.
      * @return string a prepended url with the lang.
      */
     public function prepend($uri, $lang = NULL) {
+
+        if (!Kohana::$config->load("urlang.prepend")) {
+            return $uri;
+        }
 
         $lang = $lang !== NULL ? $lang : I18n::lang();
 
@@ -100,6 +110,7 @@ class Kohana_Urlang {
 
     /**
      * Unprepend a lang on a uri.
+     * 
      * @param string $uri
      * @return string
      */
@@ -122,9 +133,10 @@ class Kohana_Urlang {
 
     /**
      * Alias for uri_to_translation.
-     * @param type $uri
-     * @param type $lang
-     * @return type
+     * 
+     * @param string $uri
+     * @param string $lang
+     * @return string
      */
     public function translate($uri, $lang = NULL) {
 
@@ -151,6 +163,7 @@ class Kohana_Urlang {
 
     /**
      * Alias for translation_to_uri.
+     * 
      * @param string $uri uri to untranslate 
      * @return string untranslated uri
      */
@@ -178,6 +191,7 @@ class Kohana_Urlang {
 
     /**
      * Determine if an uri is translateable.
+     * 
      * @param string $uri
      * @return boolean 
      */
@@ -200,6 +214,7 @@ class Kohana_Urlang {
 
     /**
      * Turns uri into translation.
+     * 
      * @param string $uri An uri to translate.
      * @param string $lang To override the destination lang.
      * @return string The uri translated version.
@@ -226,6 +241,7 @@ class Kohana_Urlang {
 
     /**
      * Take a translated uri and get its original value.
+     * 
      * @param string $translation
      * @return string
      */
@@ -259,6 +275,7 @@ class Kohana_Urlang {
 
     /**
      * Extracts end of string query such as hashtags or question mark.
+     * 
      * @param string $uri uri to be extracted.
      * @return array first element is the cleaned uri, second is the query.
      */
@@ -282,6 +299,7 @@ class Kohana_Urlang {
 
     /**
      * Retuns the suggested lang based on data in uri, cookies and browser language.
+     * 
      * @param string $uri is the uri on which a lang will be suggested.
      * @param string $fallback lang to use if everything has failed.
      * @return string a suggested and supported lang.
@@ -325,6 +343,7 @@ class Kohana_Urlang {
 
     /**
      * Test if an uri is absolute (starting with /)
+     * 
      * @param string $uri
      */
     public function is_absolute($uri) {
