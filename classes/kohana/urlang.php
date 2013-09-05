@@ -368,5 +368,3 @@ class Kohana_Urlang {
     }
 
 }
-
-?>

@@ -6,4 +6,3 @@ return array(
         //'home' => 'accueil',
         //'about' => 'a-propos',
 );
-?>

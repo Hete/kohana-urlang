@@ -8,4 +8,3 @@ return array(
     "home" => "accueil",
     "category" => "categorie"
 );
-?>

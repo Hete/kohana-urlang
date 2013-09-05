@@ -16,5 +16,3 @@ class HTML extends Kohana_HTML {
     }
 
 }
-
-?>
