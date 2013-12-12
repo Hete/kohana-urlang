@@ -12,7 +12,7 @@ class Request extends Kohana_Request {
      */
     public static function process_uri($uri, $routes = NULL) {
 
-        // Untranslate the uri before its being processed
+        // Untranslate the uri before its being processed    
         $untranslated_uri = parent::process_uri(Urlang::instance()->untranslate($uri), $routes);
 
         // Updating lang upon this information
@@ -25,5 +25,3 @@ class Request extends Kohana_Request {
     }
 
 }
-
-?>

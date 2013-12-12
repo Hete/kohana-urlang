@@ -7,4 +7,3 @@ return array(
     'prepend' => TRUE, // Prepend lang on urls
     'ignore' => "^(images|asset|assets|image)", // Ignore regex 
 );
-?>

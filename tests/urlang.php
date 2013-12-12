@@ -178,5 +178,3 @@ class Urlang_Test extends Unittest_TestCase {
     }
 
 }
-
-?>

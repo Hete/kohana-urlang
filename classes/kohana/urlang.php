@@ -140,9 +140,10 @@ class Kohana_Urlang {
             return $uri;
         }
 
-        // Translate
-        $translated = $this->uri_to_translation($uri, $lang);
+        $unprepepded = $this->unprepend($uri);
 
+        // Translate
+        $translated = $this->uri_to_translation($unprepepded, $lang);
 
         $prepended = $this->prepend($translated, $lang);
 
@@ -345,18 +346,19 @@ class Kohana_Urlang {
     }
 
     public function has_trailing_slash($uri) {
+
         // May not have any trailing character
-        if (strlen($uri) === 0)
+        if (strlen($uri) === 0) {
             return FALSE;
+        }
 
         // Not a trailing slash, but an absolute uri
-        if (strlen($uri) === 1 && $this->is_absolute($uri))
+        if (strlen($uri) === 1 && $this->is_absolute($uri)) {
             return FALSE;
+        }
 
         // Check if last char is a /
         return $uri[strlen($uri) - 1] === "/";
     }
 
 }
-
-?>
